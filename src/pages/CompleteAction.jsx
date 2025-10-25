@@ -19,10 +19,11 @@ const CompleteAction = () => {
   const location = useLocation();
   const hasProcessedAction = useRef(false);
 
-  // Safe URL parsing that works with any routing
+  // FIXED: Enhanced URL parsing for Vercel deployment
   const extractActionParameters = () => {
     console.log('🔗 Current URL:', window.location.href);
     console.log('🔗 Location search:', location.search);
+    console.log('🔗 Full location:', location);
 
     // Validate URL first to prevent invalid redirects
     const currentUrl = window.location.href;
@@ -46,19 +47,22 @@ const CompleteAction = () => {
       }
     }
 
-    // Method 2: Fallback - parse entire URL safely
+    // Method 2: Check if we're on the complete-action page with query params
     try {
       const url = new URL(window.location.href);
+      const pathname = url.pathname;
       
-      // Check search params
-      const modeParam = url.searchParams.get('mode');
-      const code = url.searchParams.get('oobCode');
-      if (modeParam && code) {
-        console.log('✅ Found parameters in URL:', { 
-          mode: modeParam, 
-          code: code.substring(0, 10) + '...' 
-        });
-        return { mode: modeParam, oobCode: code };
+      // If we're already on the complete-action route, check for query params
+      if (pathname.includes('complete-action')) {
+        const modeParam = url.searchParams.get('mode');
+        const code = url.searchParams.get('oobCode');
+        if (modeParam && code) {
+          console.log('✅ Found parameters in complete-action URL:', { 
+            mode: modeParam, 
+            code: code.substring(0, 10) + '...' 
+          });
+          return { mode: modeParam, oobCode: code };
+        }
       }
     } catch (err) {
       console.error('❌ Error parsing URL:', err);
@@ -169,7 +173,7 @@ const CompleteAction = () => {
               message: 'Password reset successful! Please sign in.',
               email: verifiedEmail 
             },
-            replace: true // Use replace to avoid adding to history
+            replace: true
           });
         }, 3000);
       } else {

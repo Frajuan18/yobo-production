@@ -33,10 +33,16 @@ export const AuthProvider = ({ children }) => {
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
 
-  // Generic action URL handling that works with any routing
+  // FIXED: Vercel-compatible action URL handling
   const getActionUrl = () => {
-    // Use current origin and pathname - works with both BrowserRouter and HashRouter
-    return window.location.origin + window.location.pathname;
+    // For Vercel, use the current origin + specific route
+    const baseUrl = window.location.origin;
+    
+    // Use a dedicated route for handling Firebase actions
+    const actionUrl = `${baseUrl}/complete-action`;
+    
+    console.log('🔗 Action URL for Firebase:', actionUrl);
+    return actionUrl;
   };
 
   // Action code settings

@@ -40,7 +40,7 @@ const HeroSection = ({ user }) => {
             </span>
           </h1>
           <p className="mt-4 text-sm text-gray-400 sm:mt-6 sm:text-base sm:max-w-2xl sm:mx-auto md:mt-8 md:text-lg lg:mx-0 animate-fade-in-up delay-100">
-            Welcome to **YOBO PRODUCTION** - where innovation meets excellence.
+            Welcome to YOBO PRODUCTION - where innovation meets excellence.
             We create stunning digital experiences that drive results and
             elevate your brand.
           </p>
