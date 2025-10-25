@@ -1,9 +1,8 @@
 {
   "rewrites": [
-    { "source": "/static/:path*", "destination": "/static/:path*" },
-    { "source": "/assets/:path*", "destination": "/assets/:path*" },
-    { "source": "/complete-action", "destination": "/index.html" },
-    { "source": "/complete-action/:path*", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
