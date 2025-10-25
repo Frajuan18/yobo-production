@@ -33,13 +33,17 @@ export const AuthProvider = ({ children }) => {
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
 
-  // FIXED: Vercel-compatible action URL handling
+  // FIXED: Dynamic action URL for localhost vs Vercel
   const getActionUrl = () => {
-    // Use the exact Vercel domain for Firebase actions
-    const actionUrl = "https://yobo-production-neke.vercel.app/complete-action";
+    const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
     
-    console.log('🔗 Action URL for Firebase:', actionUrl);
-    return actionUrl;
+    if (isProduction) {
+      // Use your exact Vercel domain
+      return "https://yobo-production-neke.vercel.app/complete-action";
+    } else {
+      // Use localhost for development
+      return "http://localhost:5173/complete-action";
+    }
   };
 
   // Action code settings
@@ -52,6 +56,8 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password, firstName, lastName) => {
     try {
       console.log('🔄 Signing up...');
+      console.log('🔗 Using action URL:', getActionUrl());
+      
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -90,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign in with email and password
+  // Rest of your AuthContext methods remain the same...
   const signIn = async (email, password) => {
     try {
       console.log('🔄 Signing in...');
@@ -123,7 +129,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign in with Google
   const signInWithGoogle = async () => {
     try {
       console.log('🔄 Signing in with Google...');
@@ -150,7 +155,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Send password reset email
   const resetPassword = async (email) => {
     try {
       console.log('🔄 Sending password reset email to:', email);
@@ -162,23 +166,13 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('❌ Password reset failed:', error);
-      console.error('📋 Error details:', {
-        code: error.code,
-        message: error.message
-      });
-      
       let errorMessage;
       switch (error.code) {
         case 'auth/invalid-email':
           errorMessage = 'Please enter a valid email address.';
           break;
         case 'auth/user-not-found':
-          // For security, show generic message
           errorMessage = 'If an account with that email exists, a password reset link has been sent.';
-          break;
-        case 'auth/missing-android-pkg-name':
-        case 'auth/missing-ios-bundle-id':
-          errorMessage = 'App configuration missing. Please contact support.';
           break;
         default:
           errorMessage = `Password reset failed: ${error.message}`;
@@ -187,19 +181,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Verify email using action code
   const verifyEmail = async (oobCode) => {
     try {
       console.log('🔄 Verifying email with code:', oobCode.substring(0, 10) + '...');
-      
-      // Check the action code first to get the email
       const info = await checkActionCode(auth, oobCode);
       const email = info.data.email;
       
-      // Apply the code to verify the email
       await applyActionCode(auth, oobCode);
 
-      // Reload user data to reflect the verified status immediately
       if (auth.currentUser && auth.currentUser.email === email) {
         await auth.currentUser.reload();
       }
@@ -216,12 +205,6 @@ export const AuthProvider = ({ children }) => {
         case 'auth/expired-action-code':
           errorMessage = 'The verification link has expired. Please request a new one.';
           break;
-        case 'auth/user-disabled':
-          errorMessage = 'This user account has been disabled.';
-          break;
-        case 'auth/user-not-found':
-          errorMessage = 'No user account found for this verification link.';
-          break;
         default:
           errorMessage = `Email verification failed: ${error.message}`;
       }
@@ -229,12 +212,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Verify password reset code to allow password input
   const verifyResetCode = async (oobCode) => {
     try {
       console.log('🔄 Verifying reset code:', oobCode.substring(0, 10) + '...');
-      
-      // This checks the code and returns the email associated with it
       const email = await fbVerifyPasswordResetCode(auth, oobCode);
       console.log('✅ Password reset code verified for:', email);
       return { success: true, email };
@@ -248,12 +228,6 @@ export const AuthProvider = ({ children }) => {
         case 'auth/invalid-action-code':
           errorMessage = 'The reset link is invalid or malformed. Please use the latest reset link from your email.';
           break;
-        case 'auth/user-disabled':
-          errorMessage = 'This user account has been disabled.';
-          break;
-        case 'auth/user-not-found':
-          errorMessage = 'No user account found for this reset link.';
-          break;
         default:
           errorMessage = `Reset link verification failed: ${error.message}`;
       }
@@ -261,7 +235,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Complete the password reset
   const confirmPasswordReset = async (oobCode, newPassword) => {
     try {
       console.log('🔄 Confirming password reset...');
@@ -278,24 +251,16 @@ export const AuthProvider = ({ children }) => {
         case 'auth/invalid-action-code':
           errorMessage = 'The reset link is invalid. Please ensure you clicked the latest link from your email.';
           break;
-        case 'auth/user-disabled':
-          errorMessage = 'The user account has been disabled.';
-          break;
-        case 'auth/user-not-found':
-          errorMessage = 'User not found for this reset link. The user may have been deleted.';
-          break;
         case 'auth/weak-password':
           errorMessage = 'The password is too weak. Please choose a stronger password.';
           break;
         default:
           errorMessage = `Password reset failed: ${error.message}`;
       }
-      
       return { success: false, error: errorMessage };
     }
   };
 
-  // Sign out
   const logout = async () => {
     try {
       await signOut(auth);
@@ -305,7 +270,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('🔄 Auth state changed:', user ? user.email : 'No user');
