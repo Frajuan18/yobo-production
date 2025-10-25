@@ -35,11 +35,8 @@ export const AuthProvider = ({ children }) => {
 
   // FIXED: Vercel-compatible action URL handling
   const getActionUrl = () => {
-    // For Vercel, use the current origin + specific route
-    const baseUrl = window.location.origin;
-    
-    // Use a dedicated route for handling Firebase actions
-    const actionUrl = `${baseUrl}/complete-action`;
+    // Use the exact Vercel domain for Firebase actions
+    const actionUrl = "https://yobo-production-neke.vercel.app/complete-action";
     
     console.log('🔗 Action URL for Firebase:', actionUrl);
     return actionUrl;

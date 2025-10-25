@@ -19,20 +19,13 @@ const CompleteAction = () => {
   const location = useLocation();
   const hasProcessedAction = useRef(false);
 
-  // FIXED: Enhanced URL parsing for Vercel deployment
+  // FIXED: Enhanced URL parsing for Vercel
   const extractActionParameters = () => {
     console.log('🔗 Current URL:', window.location.href);
     console.log('🔗 Location search:', location.search);
-    console.log('🔗 Full location:', location);
+    console.log('🔗 Full location object:', location);
 
-    // Validate URL first to prevent invalid redirects
-    const currentUrl = window.location.href;
-    if (!currentUrl || currentUrl === 'about:blank' || currentUrl === 'null') {
-      console.error('❌ Invalid URL detected');
-      return { mode: null, oobCode: null };
-    }
-
-    // Method 1: Extract from search params (standard Firebase links)
+    // Method 1: Check if we're on the complete-action page with direct parameters
     if (location.search) {
       const searchParams = new URLSearchParams(location.search);
       const modeParam = searchParams.get('mode');
@@ -47,25 +40,39 @@ const CompleteAction = () => {
       }
     }
 
-    // Method 2: Check if we're on the complete-action page with query params
+    // Method 2: Check the full URL
     try {
       const url = new URL(window.location.href);
-      const pathname = url.pathname;
+      const modeParam = url.searchParams.get('mode');
+      const code = url.searchParams.get('oobCode');
       
-      // If we're already on the complete-action route, check for query params
-      if (pathname.includes('complete-action')) {
-        const modeParam = url.searchParams.get('mode');
-        const code = url.searchParams.get('oobCode');
-        if (modeParam && code) {
-          console.log('✅ Found parameters in complete-action URL:', { 
-            mode: modeParam, 
-            code: code.substring(0, 10) + '...' 
-          });
-          return { mode: modeParam, oobCode: code };
-        }
+      if (modeParam && code) {
+        console.log('✅ Found parameters in full URL:', { 
+          mode: modeParam, 
+          code: code.substring(0, 10) + '...' 
+        });
+        return { mode: modeParam, oobCode: code };
       }
     } catch (err) {
       console.error('❌ Error parsing URL:', err);
+    }
+
+    // Method 3: Check for Firebase-style redirect (apiKey, mode, oobCode)
+    try {
+      const url = new URL(window.location.href);
+      const modeParam = url.searchParams.get('mode');
+      const code = url.searchParams.get('oobCode');
+      const apiKey = url.searchParams.get('apiKey');
+      
+      if (modeParam && code && apiKey) {
+        console.log('✅ Found Firebase-style parameters:', { 
+          mode: modeParam, 
+          code: code.substring(0, 10) + '...' 
+        });
+        return { mode: modeParam, oobCode: code };
+      }
+    } catch (err) {
+      console.error('❌ Error parsing Firebase URL:', err);
     }
 
     console.log('❌ No valid parameters found in URL');
