@@ -233,7 +233,7 @@ const CompleteAction = () => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-              {mode === 'verifyEmail' ? 'Email Verified! 🎉' : 'Password Reset Successful! 🔒'}
+              {mode === 'verifyEmail' ? 'Email Verified! 🎉' : 'Verification Sent'}
             </h2>
             <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-md border border-green-400/30 rounded-2xl p-6 mb-6">
               <p className="text-gray-200 text-center">{message}</p>
