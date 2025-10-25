@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import img1 from '../assets/DSC00317.JPG'
 import img2 from '../assets/DSC00881 copy 2.jpg'
 import img3 from '../assets/DSC00936 copy.jpg'
@@ -12,6 +12,7 @@ import img8 from '../assets/485296784_1103092605169399_4953317176909891442_n (3)
 const Gallery = () => {
   // State for the slider navigation
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const galleryItems = [
     { 
@@ -56,6 +57,15 @@ const Gallery = () => {
     },
   ];
 
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500); // 2.5 second loading simulation
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const filteredItems = galleryItems;
 
   const goToNext = () => {
@@ -81,8 +91,77 @@ const Gallery = () => {
     ? `translateX(calc(50% - ${cardHalfWidthInRem}rem - ${currentIndex * itemWidthInRem}rem))` 
     : 'translateX(0)';
 
+  // Gallery Item Skeleton Component
+  const GalleryItemSkeleton = ({ position = 'center' }) => {
+    let cardClasses = '';
+    let baseCardStyles = 'bg-gray-800/90 rounded-3xl overflow-hidden shadow-xl mx-auto border border-gray-700/50';
+
+    if (position === 'center') {
+      cardClasses = 'scale-100 opacity-100';
+    } else if (position === 'left') {
+      cardClasses = 'scale-[0.85] opacity-70 translate-x-[-15%]';
+    } else if (position === 'right') {
+      cardClasses = 'scale-[0.85] opacity-70 translate-x-[15%]';
+    } else {
+      cardClasses = 'scale-[0.7] opacity-30';
+    }
+
+    return (
+      <div className="slider-item">
+        <div className={`card-base ${baseCardStyles} ${cardClasses} animate-pulse`}>
+          {/* Image Container Skeleton */}
+          <div className="relative h-[30rem] bg-gray-900/50 overflow-hidden">
+            <div className="w-full h-full bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-800/10 to-gray-900/20 opacity-30"></div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Header Skeleton Component
+  const HeaderSkeleton = () => (
+    <div className="text-center animate-pulse">
+      {/* Subtitle Skeleton */}
+      <div className="h-5 bg-gray-700 rounded-full w-48 mx-auto mb-4"></div>
+      
+      {/* Main Title Skeleton */}
+      <div className="h-12 bg-gray-700 rounded-lg w-48 mx-auto mb-4"></div>
+      
+      {/* Description Skeleton */}
+      <div className="max-w-xl mx-auto space-y-2">
+        <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto"></div>
+        <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto"></div>
+      </div>
+    </div>
+  );
+
+  // Navigation Skeleton Component
+  const NavigationSkeleton = () => (
+    <>
+      {/* Navigation Buttons Skeleton */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-[15rem] -translate-y-1/2 p-3 bg-gray-700/50 rounded-full z-20 animate-pulse">
+        <div className="w-6 h-6 bg-gray-600 rounded"></div>
+      </div>
+      <div className="absolute top-1/2 left-1/2 transform translate-x-[12rem] -translate-y-1/2 p-3 bg-gray-700/50 rounded-full z-20 animate-pulse">
+        <div className="w-6 h-6 bg-gray-600 rounded"></div>
+      </div>
+
+      {/* Pagination Dots Skeleton */}
+      <div className="flex justify-center mt-8 space-x-2">
+        {[...Array(8)].map((_, index) => (
+          <div
+            key={index}
+            className="w-3 h-3 bg-gray-700 rounded-full animate-pulse"
+          />
+        ))}
+      </div>
+    </>
+  );
+
   return (
-    <div className="relative bg-black overflow-hidden min-h-screen font-sans py-24">
+    // ADDED ID="gallery" HERE for navbar access
+    <div className="relative bg-black overflow-hidden min-h-screen font-sans py-24" id="gallery">
       
       {/* Custom CSS for 3D and blob animations */}
       <style>
@@ -140,24 +219,45 @@ const Gallery = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Header Section - Simplified */}
-        <div className="text-center">
-          <h2 className="text-base font-semibold text-indigo-400 tracking-wide uppercase">
-            Visual Showcase
-          </h2>
-          <p className="mt-1 text-4xl font-extrabold text-gray-100 sm:text-5xl sm:tracking-tight md:text-6xl">
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-500 to-fuchsia-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.7)]">
-              Our Reel
-            </span>
-          </p>
-          <p className="max-w-xl mt-5 mx-auto text-xl text-gray-400">
-            A cinematic journey through our creative vision
-          </p>
-        </div>
+        {/* Header Section */}
+        {isLoading ? (
+          <HeaderSkeleton />
+        ) : (
+          <div className="text-center">
+            <h2 className="text-base font-semibold text-indigo-400 tracking-wide uppercase">
+              Visual Showcase
+            </h2>
+            <p className="mt-1 text-4xl font-extrabold text-gray-100 sm:text-5xl sm:tracking-tight md:text-6xl">
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-500 to-fuchsia-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.7)]">
+                Our Reel
+              </span>
+            </p>
+            <p className="max-w-xl mt-5 mx-auto text-xl text-gray-400">
+              A cinematic journey through our creative vision
+            </p>
+          </div>
+        )}
 
         {/* SLIDER/CAROUSEL SECTION */}
         <div className="mt-16 relative w-full overflow-hidden">
-          {filteredItems.length > 0 ? (
+          {isLoading ? (
+            // Skeleton Loading State
+            <div className="slider-track" style={{ transform: 'translateX(calc(50% - 11rem))' }}>
+              {/* Left side cards */}
+              <GalleryItemSkeleton position="far-left" />
+              <GalleryItemSkeleton position="left" />
+              
+              {/* Center card */}
+              <GalleryItemSkeleton position="center" />
+              
+              {/* Right side cards */}
+              <GalleryItemSkeleton position="right" />
+              <GalleryItemSkeleton position="far-right" />
+              
+              <NavigationSkeleton />
+            </div>
+          ) : filteredItems.length > 0 ? (
+            // Loaded State
             <>
               {/* Slider Track */}
               <div 

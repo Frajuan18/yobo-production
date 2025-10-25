@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import cameraLogo from '../assets/view-3d-camera.png'
+
 /**
  * HeroSection Component
  * Displays the main promotional content, background blobs, and responsive action buttons.
@@ -9,7 +10,8 @@ import cameraLogo from '../assets/view-3d-camera.png'
  */
 const HeroSection = ({ user }) => {
   return (
-    <div className="relative bg-black overflow-hidden min-h-screen flex items-center py-20">
+    // ADDED ID="home" HERE for navbar access (optional, since it's the top of the page)
+    <div className="relative bg-black overflow-hidden min-h-screen flex items-center py-20" id="home">
       {/* --- FANCY AS F*** BACKGROUND --- */}
       <div className="absolute inset-0 z-0 opacity-80">
         <div className="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] bg-cyan-500 rounded-full mix-blend-lighten filter blur-[150px] opacity-40 animate-blob-pulse"></div>
@@ -80,12 +82,11 @@ const HeroSection = ({ user }) => {
 
                 <div className="mt-6">
                   <Link
-                    to="/dashboard" // <--- This is the current path
+                    to="/dashboard"
                     className="relative inline-flex items-center justify-center overflow-hidden px-10 py-4 rounded-full text-base font-bold text-white bg-gradient-to-r from-fuchsia-500 to-purple-600 shadow-xl shadow-fuchsia-500/40
              transform hover:scale-105 hover:-translate-y-1 transition-all duration-400 ease-in-out"
                   >
                     <span className="relative z-10">Go to Dashboard</span>
-                    {/* ... SVG ... */}
                   </Link>
                 </div>
               </div>
@@ -118,4 +119,5 @@ const HeroSection = ({ user }) => {
     </div>
   );
 };
+
 export default HeroSection;
